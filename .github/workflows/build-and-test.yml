@@ -126,6 +126,28 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        if: ${{ github.event_name != 'push' }}
+        with:
+          # In order:
+          # * Module download cache
+          # * Build cache (Linux)
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.mod', '**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - uses: actions/cache@v2
+        if: ${{ github.event_name == 'push' }}
+        with:
+          # In order:
+          # * Module download cache
+          path: |
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.mod', '**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
       - name: Setup Go
         uses: actions/setup-go@v2.1.4
         with:
@@ -134,16 +156,6 @@ jobs:
         run: |
           echo "GOPATH=$(go env GOPATH)" >> $GITHUB_ENV
           echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
-      - name: Cache Go
-        id: module-cache
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-go-modules
-        with:
-          path: |
-            /home/runner/go/pkg/mod
-            /home/runner/.cache/go-build
-          key: v1-go-pkg-mod-${{ runner.os }}-${{ hashFiles('**/go.mod', '**/go.sum') }}
       - name: Cache Tools
         id: tool-cache
         uses: actions/cache@v2
