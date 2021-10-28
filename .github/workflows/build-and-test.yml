@@ -1,12 +1,12 @@
 name: build-and-test
-on:
-  push:
-    branches: [ main ]
-    tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+*'
-  pull_request:
-env:
-  TEST_RESULTS: testbed/tests/results/junit/results.xml
+on: push
+#  push:
+#    branches: [ main ]
+#    tags:
+#      - 'v[0-9]+.[0-9]+.[0-9]+*'
+#  pull_request:
+#env:
+#  TEST_RESULTS: testbed/tests/results/junit/results.xml
 
 jobs:
   setup-environment:
