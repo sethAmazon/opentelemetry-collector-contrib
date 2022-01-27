@@ -40,6 +40,9 @@ const (
 
 	// Don't use pod full name by default (as the full names contain suffix with random characters)
 	defaultPrefFullPodName = false
+
+	// Don't tag pod full name by default
+	defaultAddFullPodNameMetricLabel = false
 )
 
 // NewFactory creates a factory for AWS container insight receiver
@@ -58,6 +61,7 @@ func createDefaultConfig() config.Receiver {
 		ContainerOrchestrator: defaultContainerOrchestrator,
 		TagService:            defaultTagService,
 		PrefFullPodName:       defaultPrefFullPodName,
+		AddFullPodNameMetricLabel: defaultAddFullPodNameMetricLabel,
 	}
 }
 
