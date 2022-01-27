@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/open-telemetry/opentelemetry-collector-contrib/extension/observer v0.40.0
-	github.com/shirou/gopsutil/v3 v3.21.11
+	github.com/shirou/gopsutil/v3 v3.21.12
 	github.com/stretchr/testify v1.7.0
 	go.opentelemetry.io/collector v0.40.1-0.20211206203115-a06ca26079fe
 	go.uber.org/zap v1.19.1
