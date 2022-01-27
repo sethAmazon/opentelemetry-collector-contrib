@@ -16,6 +16,7 @@ package awscontainerinsightreceiver // import "github.com/open-telemetry/opentel
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"go.opentelemetry.io/collector/component"
@@ -47,6 +48,7 @@ const (
 
 // NewFactory creates a factory for AWS container insight receiver
 func NewFactory() component.ReceiverFactory {
+	log.Printf("test adding to factory")
 	return receiverhelper.NewFactory(
 		typeStr,
 		createDefaultConfig,

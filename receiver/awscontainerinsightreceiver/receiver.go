@@ -17,6 +17,7 @@ package awscontainerinsightreceiver // import "github.com/open-telemetry/opentel
 import (
 	"context"
 	"errors"
+	"log"
 	"time"
 
 	"go.opentelemetry.io/collector/component"
@@ -47,6 +48,10 @@ type awsContainerInsightReceiver struct {
 	cancel       context.CancelFunc
 	cadvisor     metricsProvider
 	k8sapiserver metricsProvider
+}
+
+func init()  {
+	log.Printf("Just some test")
 }
 
 // newAWSContainerInsightReceiver creates the aws container insight receiver with the given parameters.
