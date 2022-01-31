@@ -22,6 +22,7 @@ import (
 
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/config"
+	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/processor/processorhelper"
 
@@ -93,8 +94,10 @@ func createDefaultConfig() config.Processor {
 	return &Config{
 		ProcessorSettings: config.NewProcessorSettings(config.NewComponentID(typeStr)),
 		Detectors:         []string{env.TypeStr},
-		Timeout:           5 * time.Second,
-		Override:          true,
+		HTTPClientSettings: confighttp.HTTPClientSettings{
+			Timeout: 5 * time.Second,
+		},
+		Override: true,
 		// TODO: Once issue(https://github.com/open-telemetry/opentelemetry-collector/issues/4001) gets resolved,
 		// 		 Set the default value of 'hostname_source' here instead of 'system' detector
 	}
@@ -163,7 +166,7 @@ func (f *factory) getResourceDetectionProcessor(
 ) (*resourceDetectionProcessor, error) {
 	oCfg := cfg.(*Config)
 
-	provider, err := f.getResourceProvider(params, cfg.ID(), oCfg.Timeout, oCfg.Detectors, oCfg.DetectorConfig)
+	provider, err := f.getResourceProvider(params, cfg.ID(), oCfg.HTTPClientSettings, oCfg.Detectors, oCfg.DetectorConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -177,7 +180,7 @@ func (f *factory) getResourceDetectionProcessor(
 func (f *factory) getResourceProvider(
 	params component.ProcessorCreateSettings,
 	processorName config.ComponentID,
-	timeout time.Duration,
+	httpClientSettings confighttp.HTTPClientSettings,
 	configuredDetectors []string,
 	detectorConfigs DetectorConfig,
 ) (*internal.ResourceProvider, error) {
@@ -193,7 +196,7 @@ func (f *factory) getResourceProvider(
 		detectorTypes = append(detectorTypes, internal.DetectorType(strings.TrimSpace(key)))
 	}
 
-	provider, err := f.resourceProviderFactory.CreateResourceProvider(params, timeout, &detectorConfigs, detectorTypes...)
+	provider, err := f.resourceProviderFactory.CreateResourceProvider(params, httpClientSettings, &detectorConfigs, detectorTypes...)
 	if err != nil {
 		return nil, err
 	}

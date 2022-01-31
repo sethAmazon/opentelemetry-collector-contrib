@@ -18,6 +18,7 @@ import (
 	"context"
 
 	"go.opentelemetry.io/collector/component"
+	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/model/pdata"
 	conventions "go.opentelemetry.io/collector/model/semconv/v1.5.0"
 	"go.uber.org/zap"
@@ -39,7 +40,7 @@ type Detector struct {
 }
 
 // NewDetector creates a new Azure metadata detector
-func NewDetector(p component.ProcessorCreateSettings, cfg internal.DetectorConfig) (internal.Detector, error) {
+func NewDetector(p component.ProcessorCreateSettings, cfg internal.DetectorConfig, httpClientSettings confighttp.HTTPClientSettings) (internal.Detector, error) {
 	return &Detector{
 		provider: NewProvider(),
 		logger:   p.Logger,

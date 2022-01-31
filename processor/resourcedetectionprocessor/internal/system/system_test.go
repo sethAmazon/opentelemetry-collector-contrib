@@ -23,6 +23,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/component/componenttest"
+	"go.opentelemetry.io/collector/config/confighttp"
 	conventions "go.opentelemetry.io/collector/model/semconv/v1.5.0"
 	"go.uber.org/zap"
 
@@ -68,7 +69,7 @@ func TestNewDetector(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			detector, err := NewDetector(componenttest.NewNopProcessorCreateSettings(), tt.cfg)
+			detector, err := NewDetector(componenttest.NewNopProcessorCreateSettings(), tt.cfg, confighttp.HTTPClientSettings{})
 			assert.NotNil(t, detector)
 			assert.NoError(t, err)
 		})

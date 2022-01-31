@@ -27,6 +27,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/component/componenttest"
+	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/model/pdata"
 	"go.uber.org/zap"
 )
@@ -89,14 +90,14 @@ func TestDetect(t *testing.T) {
 				md.On("Detect").Return(res, nil)
 
 				mockDetectorType := DetectorType(fmt.Sprintf("mockdetector%v", i))
-				mockDetectors[mockDetectorType] = func(component.ProcessorCreateSettings, DetectorConfig) (Detector, error) {
+				mockDetectors[mockDetectorType] = func(component.ProcessorCreateSettings, DetectorConfig, confighttp.HTTPClientSettings) (Detector, error) {
 					return md, nil
 				}
 				mockDetectorTypes = append(mockDetectorTypes, mockDetectorType)
 			}
 
 			f := NewProviderFactory(mockDetectors)
-			p, err := f.CreateResourceProvider(componenttest.NewNopProcessorCreateSettings(), time.Second, &mockDetectorConfig{}, mockDetectorTypes...)
+			p, err := f.CreateResourceProvider(componenttest.NewNopProcessorCreateSettings(), confighttp.HTTPClientSettings{Timeout: time.Second}, &mockDetectorConfig{}, mockDetectorTypes...)
 			require.NoError(t, err)
 
 			got, _, err := p.Get(context.Background())
@@ -112,18 +113,18 @@ func TestDetect(t *testing.T) {
 func TestDetectResource_InvalidDetectorType(t *testing.T) {
 	mockDetectorKey := DetectorType("mock")
 	p := NewProviderFactory(map[DetectorType]DetectorFactory{})
-	_, err := p.CreateResourceProvider(componenttest.NewNopProcessorCreateSettings(), time.Second, &mockDetectorConfig{}, mockDetectorKey)
+	_, err := p.CreateResourceProvider(componenttest.NewNopProcessorCreateSettings(), confighttp.HTTPClientSettings{Timeout: time.Second}, &mockDetectorConfig{}, mockDetectorKey)
 	require.EqualError(t, err, fmt.Sprintf("invalid detector key: %v", mockDetectorKey))
 }
 
 func TestDetectResource_DetectoryFactoryError(t *testing.T) {
 	mockDetectorKey := DetectorType("mock")
 	p := NewProviderFactory(map[DetectorType]DetectorFactory{
-		mockDetectorKey: func(component.ProcessorCreateSettings, DetectorConfig) (Detector, error) {
+		mockDetectorKey: func(component.ProcessorCreateSettings, DetectorConfig, confighttp.HTTPClientSettings) (Detector, error) {
 			return nil, errors.New("creation failed")
 		},
 	})
-	_, err := p.CreateResourceProvider(componenttest.NewNopProcessorCreateSettings(), time.Second, &mockDetectorConfig{}, mockDetectorKey)
+	_, err := p.CreateResourceProvider(componenttest.NewNopProcessorCreateSettings(), confighttp.HTTPClientSettings{Timeout: time.Second}, &mockDetectorConfig{}, mockDetectorKey)
 	require.EqualError(t, err, fmt.Sprintf("failed creating detector type %q: %v", mockDetectorKey, "creation failed"))
 }
 
@@ -134,7 +135,7 @@ func TestDetectResource_Error(t *testing.T) {
 	md2 := &MockDetector{}
 	md2.On("Detect").Return(pdata.NewResource(), errors.New("err1"))
 
-	p := NewResourceProvider(zap.NewNop(), time.Second, md1, md2)
+	p := NewResourceProvider(component.ProcessorCreateSettings{TelemetrySettings: component.TelemetrySettings{Logger: zap.NewNop()}}, confighttp.HTTPClientSettings{Timeout: time.Second}, md1, md2)
 	_, _, err := p.Get(context.Background())
 	require.NoError(t, err)
 }
@@ -204,7 +205,7 @@ func TestDetectResource_Parallel(t *testing.T) {
 	expectedResource := NewResource(map[string]interface{}{"a": "1", "b": "2", "c": "3"})
 	expectedResource.Attributes().Sort()
 
-	p := NewResourceProvider(zap.NewNop(), time.Second, md1, md2, md3)
+	p := NewResourceProvider(component.ProcessorCreateSettings{TelemetrySettings: component.TelemetrySettings{Logger: zap.NewNop()}}, confighttp.HTTPClientSettings{Timeout: time.Second}, md1, md2, md3)
 
 	// call p.Get multiple times
 	wg := &sync.WaitGroup{}

@@ -22,13 +22,14 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/component/componenttest"
+	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/model/pdata"
 
 	"github.com/open-telemetry/opentelemetry-collector-contrib/processor/resourcedetectionprocessor/internal"
 )
 
 func TestNewDetector(t *testing.T) {
-	d, err := NewDetector(componenttest.NewNopProcessorCreateSettings(), nil)
+	d, err := NewDetector(componenttest.NewNopProcessorCreateSettings(), nil, confighttp.HTTPClientSettings{})
 	assert.NotNil(t, d)
 	assert.NoError(t, err)
 }

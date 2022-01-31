@@ -22,6 +22,7 @@ import (
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/component/componenthelper"
 	"go.opentelemetry.io/collector/config"
+	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/extension/extensionhelper"
 
 	"github.com/open-telemetry/opentelemetry-collector-contrib/extension/observer"
@@ -55,7 +56,7 @@ func createExtension(
 	var metadataProvider ecsutil.MetadataProvider
 	var err error
 	if obsCfg.Endpoint == "" {
-		metadataProvider, err = ecsutil.NewDetectedTaskMetadataProvider(params.TelemetrySettings)
+		metadataProvider, err = ecsutil.NewDetectedTaskMetadataProvider(params.TelemetrySettings, confighttp.HTTPClientSettings{})
 	} else {
 		metadataProvider, err = metadataProviderFromEndpoint(obsCfg, params.TelemetrySettings)
 	}

@@ -45,7 +45,7 @@ func NewTaskMetadataProvider(client RestClient, logger *zap.Logger) MetadataProv
 	}
 }
 
-func NewDetectedTaskMetadataProvider(set component.TelemetrySettings) (MetadataProvider, error) {
+func NewDetectedTaskMetadataProvider(set component.TelemetrySettings, httpClientSettings confighttp.HTTPClientSettings) (MetadataProvider, error) {
 	endpoint, err := endpoints.GetTMEFromEnv()
 	if err != nil {
 		return nil, err
@@ -53,8 +53,7 @@ func NewDetectedTaskMetadataProvider(set component.TelemetrySettings) (MetadataP
 		return nil, fmt.Errorf("unable to detect task metadata endpoint")
 	}
 
-	clientSettings := confighttp.HTTPClientSettings{}
-	client, err := NewRestClient(*endpoint, clientSettings, set)
+	client, err := NewRestClient(*endpoint, httpClientSettings, set)
 	if err != nil {
 		return nil, err
 	}

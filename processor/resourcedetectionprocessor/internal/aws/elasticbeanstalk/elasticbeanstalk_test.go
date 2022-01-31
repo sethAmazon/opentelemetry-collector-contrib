@@ -24,6 +24,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/collector/component/componenttest"
+	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/model/pdata"
 
 	"github.com/open-telemetry/opentelemetry-collector-contrib/processor/resourcedetectionprocessor/internal"
@@ -52,7 +53,7 @@ func (mfs *mockFileSystem) IsWindows() bool {
 }
 
 func Test_newDetector(t *testing.T) {
-	d, err := NewDetector(componenttest.NewNopProcessorCreateSettings(), nil)
+	d, err := NewDetector(componenttest.NewNopProcessorCreateSettings(), nil, confighttp.HTTPClientSettings{})
 
 	assert.Nil(t, err)
 	assert.NotNil(t, d)

@@ -21,9 +21,9 @@ import (
 	"fmt"
 	"strings"
 	"sync"
-	"time"
 
 	"go.opentelemetry.io/collector/component"
+	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/model/pdata"
 	"go.uber.org/zap"
 )
@@ -40,7 +40,7 @@ type ResourceDetectorConfig interface {
 	GetConfigFromType(DetectorType) DetectorConfig
 }
 
-type DetectorFactory func(component.ProcessorCreateSettings, DetectorConfig) (Detector, error)
+type DetectorFactory func(component.ProcessorCreateSettings, DetectorConfig, confighttp.HTTPClientSettings) (Detector, error)
 
 type ResourceProviderFactory struct {
 	// detectors holds all possible detector types.
@@ -53,19 +53,19 @@ func NewProviderFactory(detectors map[DetectorType]DetectorFactory) *ResourcePro
 
 func (f *ResourceProviderFactory) CreateResourceProvider(
 	params component.ProcessorCreateSettings,
-	timeout time.Duration,
+	httpClientSettings confighttp.HTTPClientSettings,
 	detectorConfigs ResourceDetectorConfig,
 	detectorTypes ...DetectorType) (*ResourceProvider, error) {
-	detectors, err := f.getDetectors(params, detectorConfigs, detectorTypes)
+	detectors, err := f.getDetectors(params, detectorConfigs, detectorTypes, httpClientSettings)
 	if err != nil {
 		return nil, err
 	}
 
-	provider := NewResourceProvider(params.Logger, timeout, detectors...)
+	provider := NewResourceProvider(params, httpClientSettings, detectors...)
 	return provider, nil
 }
 
-func (f *ResourceProviderFactory) getDetectors(params component.ProcessorCreateSettings, detectorConfigs ResourceDetectorConfig, detectorTypes []DetectorType) ([]Detector, error) {
+func (f *ResourceProviderFactory) getDetectors(params component.ProcessorCreateSettings, detectorConfigs ResourceDetectorConfig, detectorTypes []DetectorType, httpClientSettings confighttp.HTTPClientSettings) ([]Detector, error) {
 	detectors := make([]Detector, 0, len(detectorTypes))
 	for _, detectorType := range detectorTypes {
 		detectorFactory, ok := f.detectors[detectorType]
@@ -73,7 +73,7 @@ func (f *ResourceProviderFactory) getDetectors(params component.ProcessorCreateS
 			return nil, fmt.Errorf("invalid detector key: %v", detectorType)
 		}
 
-		detector, err := detectorFactory(params, detectorConfigs.GetConfigFromType(detectorType))
+		detector, err := detectorFactory(params, detectorConfigs.GetConfigFromType(detectorType), httpClientSettings)
 		if err != nil {
 			return nil, fmt.Errorf("failed creating detector type %q: %w", detectorType, err)
 		}
@@ -85,11 +85,12 @@ func (f *ResourceProviderFactory) getDetectors(params component.ProcessorCreateS
 }
 
 type ResourceProvider struct {
-	logger           *zap.Logger
-	timeout          time.Duration
-	detectors        []Detector
-	detectedResource *resourceResult
-	once             sync.Once
+	logger             *zap.Logger
+	httpClientSettings confighttp.HTTPClientSettings
+	detectors          []Detector
+	detectedResource   *resourceResult
+	once               sync.Once
+	telemetrySettings  component.TelemetrySettings
 }
 
 type resourceResult struct {
@@ -98,18 +99,19 @@ type resourceResult struct {
 	err       error
 }
 
-func NewResourceProvider(logger *zap.Logger, timeout time.Duration, detectors ...Detector) *ResourceProvider {
+func NewResourceProvider(params component.ProcessorCreateSettings, httpClientSettings confighttp.HTTPClientSettings, detectors ...Detector) *ResourceProvider {
 	return &ResourceProvider{
-		logger:    logger,
-		timeout:   timeout,
-		detectors: detectors,
+		logger:             params.Logger,
+		httpClientSettings: httpClientSettings,
+		detectors:          detectors,
+		telemetrySettings:  params.TelemetrySettings,
 	}
 }
 
 func (p *ResourceProvider) Get(ctx context.Context) (resource pdata.Resource, schemaURL string, err error) {
 	p.once.Do(func() {
 		var cancel context.CancelFunc
-		ctx, cancel = context.WithTimeout(ctx, p.timeout)
+		ctx, cancel = context.WithTimeout(ctx, p.httpClientSettings.Timeout)
 		defer cancel()
 		p.detectResource(ctx)
 	})

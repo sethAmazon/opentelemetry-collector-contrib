@@ -22,6 +22,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/collector/component/componenttest"
 	"go.opentelemetry.io/collector/config"
+	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/service/servicetest"
 
 	"github.com/open-telemetry/opentelemetry-collector-contrib/processor/resourcedetectionprocessor/internal"
@@ -47,8 +48,10 @@ func TestLoadConfig(t *testing.T) {
 	assert.Equal(t, p2, &Config{
 		ProcessorSettings: config.NewProcessorSettings(config.NewComponentIDWithName(typeStr, "gce")),
 		Detectors:         []string{"env", "gce"},
-		Timeout:           2 * time.Second,
-		Override:          false,
+		HTTPClientSettings: confighttp.HTTPClientSettings{
+			Timeout: 2 * time.Second,
+		},
+		Override: false,
 	})
 
 	p3 := cfg.Processors[config.NewComponentIDWithName(typeStr, "ec2")]
@@ -60,7 +63,9 @@ func TestLoadConfig(t *testing.T) {
 				Tags: []string{"^tag1$", "^tag2$"},
 			},
 		},
-		Timeout:  2 * time.Second,
+		HTTPClientSettings: confighttp.HTTPClientSettings{
+			Timeout: 2 * time.Second,
+		},
 		Override: false,
 	})
 
@@ -73,7 +78,9 @@ func TestLoadConfig(t *testing.T) {
 				HostnameSources: []string{"os"},
 			},
 		},
-		Timeout:  2 * time.Second,
+		HTTPClientSettings: confighttp.HTTPClientSettings{
+			Timeout: 2 * time.Second,
+		},
 		Override: false,
 	})
 }

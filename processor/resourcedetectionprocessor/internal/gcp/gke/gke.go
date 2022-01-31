@@ -19,6 +19,7 @@ import (
 	"os"
 
 	"go.opentelemetry.io/collector/component"
+	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/model/pdata"
 	conventions "go.opentelemetry.io/collector/model/semconv/v1.5.0"
 	"go.uber.org/zap"
@@ -45,7 +46,7 @@ type Detector struct {
 	metadata gcp.Metadata
 }
 
-func NewDetector(params component.ProcessorCreateSettings, _ internal.DetectorConfig) (internal.Detector, error) {
+func NewDetector(params component.ProcessorCreateSettings, _ internal.DetectorConfig, httpClientSettings confighttp.HTTPClientSettings) (internal.Detector, error) {
 	return &Detector{log: params.Logger, metadata: &gcp.MetadataImpl{}}, nil
 }
 

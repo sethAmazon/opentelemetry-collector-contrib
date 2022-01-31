@@ -27,6 +27,7 @@ import (
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/component/componenttest"
 	"go.opentelemetry.io/collector/config"
+	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/consumer/consumertest"
 	"go.opentelemetry.io/collector/model/pdata"
 
@@ -159,7 +160,7 @@ func TestResourceProcessor(t *testing.T) {
 			md1 := &MockDetector{}
 			md1.On("Detect").Return(tt.detectedResource, tt.detectedError)
 			factory.resourceProviderFactory = internal.NewProviderFactory(
-				map[internal.DetectorType]internal.DetectorFactory{"mock": func(component.ProcessorCreateSettings, internal.DetectorConfig) (internal.Detector, error) {
+				map[internal.DetectorType]internal.DetectorFactory{"mock": func(component.ProcessorCreateSettings, internal.DetectorConfig, confighttp.HTTPClientSettings) (internal.Detector, error) {
 					return md1, nil
 				}})
 
@@ -171,7 +172,9 @@ func TestResourceProcessor(t *testing.T) {
 				ProcessorSettings: config.NewProcessorSettings(config.NewComponentID(typeStr)),
 				Override:          tt.override,
 				Detectors:         tt.detectorKeys,
-				Timeout:           time.Second,
+				HTTPClientSettings: confighttp.HTTPClientSettings{
+					Timeout: time.Second,
+				},
 			}
 
 			// Test trace consumer

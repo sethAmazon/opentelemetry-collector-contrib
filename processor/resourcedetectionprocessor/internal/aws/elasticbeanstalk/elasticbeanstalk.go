@@ -21,6 +21,7 @@ import (
 	"strconv"
 
 	"go.opentelemetry.io/collector/component"
+	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/model/pdata"
 	conventions "go.opentelemetry.io/collector/model/semconv/v1.5.0"
 
@@ -47,7 +48,7 @@ type EbMetaData struct {
 	VersionLabel    string `json:"version_label"`
 }
 
-func NewDetector(component.ProcessorCreateSettings, internal.DetectorConfig) (internal.Detector, error) {
+func NewDetector(component.ProcessorCreateSettings, internal.DetectorConfig, confighttp.HTTPClientSettings) (internal.Detector, error) {
 	return &Detector{fs: &ebFileSystem{}}, nil
 }
 

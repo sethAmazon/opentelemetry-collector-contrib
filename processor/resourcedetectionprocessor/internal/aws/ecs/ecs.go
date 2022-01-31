@@ -21,6 +21,7 @@ import (
 	"strings"
 
 	"go.opentelemetry.io/collector/component"
+	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/model/pdata"
 	conventions "go.opentelemetry.io/collector/model/semconv/v1.5.0"
 
@@ -40,8 +41,8 @@ type Detector struct {
 	provider ecsutil.MetadataProvider
 }
 
-func NewDetector(params component.ProcessorCreateSettings, _ internal.DetectorConfig) (internal.Detector, error) {
-	provider, err := ecsutil.NewDetectedTaskMetadataProvider(params.TelemetrySettings)
+func NewDetector(params component.ProcessorCreateSettings, _ internal.DetectorConfig, httpClientSettings confighttp.HTTPClientSettings) (internal.Detector, error) {
+	provider, err := ecsutil.NewDetectedTaskMetadataProvider(params.TelemetrySettings, httpClientSettings)
 	if err != nil {
 		// Allow metadata provider to be created in incompatible environments and just have a noop Detect()
 		if _, ok := err.(endpoints.ErrNoTaskMetadataEndpointDetected); ok {

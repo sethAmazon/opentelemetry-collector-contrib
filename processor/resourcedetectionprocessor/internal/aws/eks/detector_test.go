@@ -23,6 +23,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/component/componenttest"
+	"go.opentelemetry.io/collector/config/confighttp"
 	"go.uber.org/zap"
 
 	"github.com/open-telemetry/opentelemetry-collector-contrib/processor/resourcedetectionprocessor/internal"
@@ -38,7 +39,7 @@ func (detectorUtils *MockDetectorUtils) getConfigMap(_ context.Context, namespac
 }
 
 func TestNewDetector(t *testing.T) {
-	detector, err := NewDetector(componenttest.NewNopProcessorCreateSettings(), nil)
+	detector, err := NewDetector(componenttest.NewNopProcessorCreateSettings(), nil, confighttp.HTTPClientSettings{})
 	assert.NoError(t, err)
 	assert.NotNil(t, detector)
 }

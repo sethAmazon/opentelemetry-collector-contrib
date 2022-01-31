@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"go.opentelemetry.io/collector/component"
+	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/model/pdata"
 	conventions "go.opentelemetry.io/collector/model/semconv/v1.5.0"
 	"go.uber.org/zap"
@@ -47,7 +48,7 @@ type Detector struct {
 }
 
 // NewDetector creates a new system metadata detector
-func NewDetector(p component.ProcessorCreateSettings, dcfg internal.DetectorConfig) (internal.Detector, error) {
+func NewDetector(p component.ProcessorCreateSettings, dcfg internal.DetectorConfig, httpClientSettings confighttp.HTTPClientSettings) (internal.Detector, error) {
 	cfg := dcfg.(Config)
 	if len(cfg.HostnameSources) == 0 {
 		cfg.HostnameSources = []string{"dns", "os"}

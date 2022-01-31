@@ -19,6 +19,7 @@ import (
 	"os"
 
 	"go.opentelemetry.io/collector/component"
+	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/model/pdata"
 	conventions "go.opentelemetry.io/collector/model/semconv/v1.5.0"
 
@@ -39,7 +40,7 @@ type Detector struct {
 }
 
 // NewDetector creates a new AKS detector
-func NewDetector(component.ProcessorCreateSettings, internal.DetectorConfig) (internal.Detector, error) {
+func NewDetector(component.ProcessorCreateSettings, internal.DetectorConfig, confighttp.HTTPClientSettings) (internal.Detector, error) {
 	return &Detector{provider: azure.NewProvider()}, nil
 }
 

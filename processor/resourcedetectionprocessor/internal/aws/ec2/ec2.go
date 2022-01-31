@@ -17,6 +17,7 @@ package ec2 // import "github.com/open-telemetry/opentelemetry-collector-contrib
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"regexp"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -24,6 +25,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
 	"go.opentelemetry.io/collector/component"
+	"go.opentelemetry.io/collector/config"
+	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/model/pdata"
 	conventions "go.opentelemetry.io/collector/model/semconv/v1.5.0"
 	"go.uber.org/zap"
@@ -40,12 +43,14 @@ const (
 var _ internal.Detector = (*Detector)(nil)
 
 type Detector struct {
-	metadataProvider metadataProvider
-	tagKeyRegexes    []*regexp.Regexp
-	logger           *zap.Logger
+	metadataProvider   metadataProvider
+	tagKeyRegexes      []*regexp.Regexp
+	logger             *zap.Logger
+	httpClientSettings confighttp.HTTPClientSettings
+	telemetrySettings  component.TelemetrySettings
 }
 
-func NewDetector(set component.ProcessorCreateSettings, dcfg internal.DetectorConfig) (internal.Detector, error) {
+func NewDetector(set component.ProcessorCreateSettings, dcfg internal.DetectorConfig, httpClientSettings confighttp.HTTPClientSettings) (internal.Detector, error) {
 	cfg := dcfg.(Config)
 	sess, err := session.NewSession()
 	if err != nil {
@@ -56,9 +61,11 @@ func NewDetector(set component.ProcessorCreateSettings, dcfg internal.DetectorCo
 		return nil, err
 	}
 	return &Detector{
-		metadataProvider: newMetadataClient(sess),
-		tagKeyRegexes:    tagKeyRegexes,
-		logger:           set.Logger,
+		metadataProvider:   newMetadataClient(sess),
+		tagKeyRegexes:      tagKeyRegexes,
+		logger:             set.Logger,
+		httpClientSettings: httpClientSettings,
+		telemetrySettings:  set.TelemetrySettings,
 	}, nil
 }
 
@@ -90,8 +97,13 @@ func (d *Detector) Detect(ctx context.Context) (resource pdata.Resource, schemaU
 	attr.InsertString(conventions.AttributeHostType, meta.InstanceType)
 	attr.InsertString(conventions.AttributeHostName, hostname)
 
+	client, err := d.httpClientSettings.ToClient(map[config.ComponentID]component.Extension{}, d.telemetrySettings)
+	if err != nil {
+		return res, "", fmt.Errorf("failed getting client: %w", err)
+	}
+
 	if len(d.tagKeyRegexes) != 0 {
-		tags, err := connectAndFetchEc2Tags(meta.Region, meta.InstanceID, d.tagKeyRegexes)
+		tags, err := connectAndFetchEc2Tags(meta.Region, meta.InstanceID, d.tagKeyRegexes, client)
 		if err != nil {
 			return res, "", fmt.Errorf("failed fetching ec2 instance tags: %w", err)
 		}
@@ -103,9 +115,10 @@ func (d *Detector) Detect(ctx context.Context) (resource pdata.Resource, schemaU
 	return res, conventions.SchemaURL, nil
 }
 
-func connectAndFetchEc2Tags(region string, instanceID string, tagKeyRegexes []*regexp.Regexp) (map[string]string, error) {
+func connectAndFetchEc2Tags(region string, instanceID string, tagKeyRegexes []*regexp.Regexp, client *http.Client) (map[string]string, error) {
 	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String(region)},
+		Region:     aws.String(region),
+		HTTPClient: client},
 	)
 	if err != nil {
 		return nil, err

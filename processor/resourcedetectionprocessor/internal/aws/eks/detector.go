@@ -20,6 +20,7 @@ import (
 	"os"
 
 	"go.opentelemetry.io/collector/component"
+	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/model/pdata"
 	conventions "go.opentelemetry.io/collector/model/semconv/v1.5.0"
 	"go.uber.org/zap"
@@ -60,7 +61,7 @@ var _ internal.Detector = (*detector)(nil)
 var _ detectorUtils = (*eksDetectorUtils)(nil)
 
 // NewDetector returns a resource detector that will detect AWS EKS resources.
-func NewDetector(set component.ProcessorCreateSettings, _ internal.DetectorConfig) (internal.Detector, error) {
+func NewDetector(set component.ProcessorCreateSettings, _ internal.DetectorConfig, httpClientSettings confighttp.HTTPClientSettings) (internal.Detector, error) {
 	utils, err := newK8sDetectorUtils()
 	return &detector{utils: utils, logger: set.Logger, err: err}, nil
 }
