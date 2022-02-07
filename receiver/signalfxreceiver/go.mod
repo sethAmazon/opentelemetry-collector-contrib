@@ -7,7 +7,7 @@ require (
 	github.com/open-telemetry/opentelemetry-collector-contrib/exporter/signalfxexporter v0.40.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/internal/coreinternal v0.40.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/internal/splunk v0.40.0
-	github.com/signalfx/com_signalfx_metrics_protobuf v0.0.2
+	github.com/signalfx/com_signalfx_metrics_protobuf v0.0.3
 	github.com/stretchr/testify v1.7.0
 	go.opencensus.io v0.23.0
 	go.opentelemetry.io/collector v0.40.1-0.20211206203115-a06ca26079fe
@@ -42,7 +42,6 @@ require (
 	github.com/opentracing/opentracing-go v1.1.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
-	github.com/rogpeppe/go-internal v1.6.1 // indirect
 	github.com/rs/cors v1.8.0 // indirect
 	github.com/shirou/gopsutil/v3 v3.21.11 // indirect
 	github.com/signalfx/gohistogram v0.0.0-20160107210732-1ccfd2ff5083 // indirect
