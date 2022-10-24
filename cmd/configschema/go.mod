@@ -8,8 +8,8 @@ require (
 	github.com/open-telemetry/opentelemetry-collector-contrib v0.40.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/resourcetotelemetry v0.40.0
 	github.com/stretchr/testify v1.7.0
-	go.opentelemetry.io/collector v0.40.1-0.20211206203115-a06ca26079fe
-	go.opentelemetry.io/collector/model v0.40.1-0.20211206203115-a06ca26079fe
+	go.opentelemetry.io/collector v0.41.0
+	go.opentelemetry.io/collector/model v0.41.0
 	golang.org/x/mod v0.4.2
 )
 
@@ -306,7 +306,7 @@ require (
 	github.com/open-telemetry/opentelemetry-collector-contrib/receiver/windowsperfcountersreceiver v0.40.0 // indirect
 	github.com/open-telemetry/opentelemetry-collector-contrib/receiver/zipkinreceiver v0.40.0 // indirect
 	github.com/open-telemetry/opentelemetry-collector-contrib/receiver/zookeeperreceiver v0.40.0 // indirect
-	github.com/open-telemetry/opentelemetry-log-collection v0.23.0 // indirect
+	github.com/open-telemetry/opentelemetry-log-collection v0.24.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.2 // indirect
 	github.com/opencontainers/runc v1.0.2 // indirect
