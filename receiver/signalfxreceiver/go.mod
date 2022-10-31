@@ -12,7 +12,7 @@ require (
 	go.opencensus.io v0.23.0
 	go.opentelemetry.io/collector v0.40.1-0.20211206203115-a06ca26079fe
 	go.opentelemetry.io/collector/model v0.40.1-0.20211206203115-a06ca26079fe
-	go.uber.org/zap v1.19.1
+	go.uber.org/zap v1.20.0
 
 )
 
@@ -42,7 +42,6 @@ require (
 	github.com/opentracing/opentracing-go v1.1.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
-	github.com/rogpeppe/go-internal v1.6.1 // indirect
 	github.com/rs/cors v1.8.0 // indirect
 	github.com/shirou/gopsutil/v3 v3.21.11 // indirect
 	github.com/signalfx/gohistogram v0.0.0-20160107210732-1ccfd2ff5083 // indirect
