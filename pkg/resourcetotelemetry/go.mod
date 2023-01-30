@@ -7,7 +7,7 @@ require (
 	github.com/stretchr/testify v1.8.1
 	go.opentelemetry.io/collector v0.69.0
 	go.opentelemetry.io/collector/consumer v0.69.0
-	go.opentelemetry.io/collector/pdata v1.0.0-rc3
+	go.opentelemetry.io/collector/pdata v1.0.0-rc4
 )
 
 require (
