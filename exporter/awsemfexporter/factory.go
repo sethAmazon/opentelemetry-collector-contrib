@@ -36,7 +36,8 @@ func NewFactory() exporter.Factory {
 	return exporter.NewFactory(
 		typeStr,
 		createDefaultConfig,
-		exporter.WithMetrics(createMetricsExporter, stability))
+		exporter.WithMetrics(createMetricsExporter, stability),
+		exporter.WithLogs(createLogsExporter, stability))
 }
 
 // CreateDefaultConfig creates the default configuration for exporter.
@@ -61,4 +62,14 @@ func createMetricsExporter(_ context.Context,
 	expCfg := config.(*Config)
 
 	return newEmfExporter(expCfg, params)
+}
+
+// createLogsExporter creates a metrics exporter based on this config.
+func createLogsExporter(_ context.Context,
+	params exporter.CreateSettings,
+	config component.Config) (exporter.Logs, error) {
+
+	expCfg := config.(*Config)
+
+	return newEmfLogsExporter(expCfg, params)
 }

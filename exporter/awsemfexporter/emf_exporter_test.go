@@ -17,8 +17,11 @@ package awsemfexporter
 import (
 	"context"
 	"errors"
+	"fmt"
+	"go.opentelemetry.io/collector/pdata/plog"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	commonpb "github.com/census-instrumentation/opencensus-proto/gen-go/agent/common/v1"
@@ -127,6 +130,62 @@ func TestConsumeMetrics(t *testing.T) {
 	md := internaldata.OCToMetrics(mdata.Node, mdata.Resource, mdata.Metrics)
 	require.Error(t, exp.ConsumeMetrics(ctx, md))
 	require.NoError(t, exp.Shutdown(ctx))
+}
+
+func TestConsumeLogs(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	testCases := map[string]struct {
+		input      plog.Logs
+		wantErr    error
+		outputDest string
+	}{
+		"OldTimestamp": {
+			input:      createPLog(`{"_aws":{"Timestamp":1574109732004,"LogGroupName":"Foo","CloudWatchMetrics":[{"Namespace":"MyApp","Dimensions":[["Operation"]],"Metrics":[{"Name":"ProcessingLatency","Unit":"Milliseconds","StorageResolution":60}]}]},"Operation":"Aggregator","ProcessingLatency":100}`),
+			wantErr:    errors.New("the log entry's timestamp is older than 14 days or more than 2 hours in the future"),
+			outputDest: "cloudwatch",
+		},
+		"CurrentTimestamp": {
+			input:      createPLog(fmt.Sprintf(`{"_aws":{"Timestamp":%d,"LogGroupName":"Foo","CloudWatchMetrics":[{"Namespace":"MyApp","Dimensions":[["Operation"]],"Metrics":[{"Name":"ProcessingLatency","Unit":"Milliseconds","StorageResolution":60}]}]},"Operation":"Aggregator","ProcessingLatency":100}`, time.Now().UnixNano()/int64(time.Millisecond))),
+			wantErr:    nil,
+			outputDest: "stdout",
+		},
+	}
+	for name, testCase := range testCases {
+		factory := NewFactory()
+		expCfg := factory.CreateDefaultConfig().(*Config)
+		expCfg.Region = "us-west-2"
+		expCfg.MaxRetries = 0
+		exp, err := newEmfLogsExporter(expCfg, exportertest.NewNopCreateSettings())
+		assert.Nil(t, err)
+		assert.NotNil(t, exp)
+		t.Run(name, func(t *testing.T) {
+			expCfg.OutputDestination = testCase.outputDest
+			err = exp.ConsumeLogs(ctx, testCase.input)
+			if testCase.wantErr == nil {
+				require.NoError(t, err)
+			} else {
+				require.Error(t, err)
+				require.Equal(t, testCase.wantErr, err)
+			}
+			require.NoError(t, exp.Shutdown(ctx))
+		})
+	}
+}
+
+func createPLog(log string) plog.Logs {
+	pLog := plog.NewLogs()
+	pLog.
+		ResourceLogs().
+		AppendEmpty().
+		ScopeLogs().
+		AppendEmpty().
+		LogRecords().
+		AppendEmpty().
+		Body().
+		SetStr(log)
+	return pLog
 }
 
 func TestConsumeMetricsWithOutputDestination(t *testing.T) {
