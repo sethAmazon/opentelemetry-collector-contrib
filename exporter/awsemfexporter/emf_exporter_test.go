@@ -17,12 +17,6 @@ package awsemfexporter
 import (
 	"context"
 	"errors"
-	"fmt"
-	"go.opentelemetry.io/collector/pdata/plog"
-	"os"
-	"testing"
-	"time"
-
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	commonpb "github.com/census-instrumentation/opencensus-proto/gen-go/agent/common/v1"
 	agentmetricspb "github.com/census-instrumentation/opencensus-proto/gen-go/agent/metrics/v1"
@@ -34,9 +28,12 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/consumer/consumererror"
 	"go.opentelemetry.io/collector/exporter/exportertest"
+	"go.opentelemetry.io/collector/pdata/plog"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"go.uber.org/zap/zaptest/observer"
+	"os"
+	"testing"
 
 	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/aws/cwlogs"
 	internaldata "github.com/open-telemetry/opentelemetry-collector-contrib/pkg/translator/opencensus"
@@ -137,19 +134,20 @@ func TestConsumeLogs(t *testing.T) {
 	defer cancel()
 
 	testCases := map[string]struct {
-		input      plog.Logs
-		wantErr    error
-		outputDest string
+		input   plog.Logs
+		wantErr error
 	}{
 		"OldTimestamp": {
-			input:      createPLog(`{"_aws":{"Timestamp":1574109732004,"LogGroupName":"Foo","CloudWatchMetrics":[{"Namespace":"MyApp","Dimensions":[["Operation"]],"Metrics":[{"Name":"ProcessingLatency","Unit":"Milliseconds","StorageResolution":60}]}]},"Operation":"Aggregator","ProcessingLatency":100}`),
-			wantErr:    errors.New("the log entry's timestamp is older than 14 days or more than 2 hours in the future"),
-			outputDest: "cloudwatch",
+			input:   createPLog(`{"_aws":{"Timestamp":1574109732004,"LogGroupName":"Foo","CloudWatchMetrics":[{"Namespace":"MyApp","Dimensions":[["Operation"]],"Metrics":[{"Name":"ProcessingLatency","Unit":"Milliseconds","StorageResolution":60}]}]},"Operation":"Aggregator","ProcessingLatency":100}`),
+			wantErr: errors.New("the log entry's timestamp is older than 14 days or more than 2 hours in the future"),
 		},
-		"CurrentTimestamp": {
-			input:      createPLog(fmt.Sprintf(`{"_aws":{"Timestamp":%d,"LogGroupName":"Foo","CloudWatchMetrics":[{"Namespace":"MyApp","Dimensions":[["Operation"]],"Metrics":[{"Name":"ProcessingLatency","Unit":"Milliseconds","StorageResolution":60}]}]},"Operation":"Aggregator","ProcessingLatency":100}`, time.Now().UnixNano()/int64(time.Millisecond))),
-			wantErr:    nil,
-			outputDest: "stdout",
+		"Not json log": {
+			input:   createPLog("hello world"),
+			wantErr: errors.New("Could not unmarshal emf log err invalid character 'h' looking for beginning of value"),
+		},
+		"Not emf log": {
+			input:   createPLog(`{"hello":"world"`),
+			wantErr: errors.New("Could not unmarshal emf log err unexpected end of JSON input"),
 		},
 	}
 	for name, testCase := range testCases {
@@ -161,14 +159,9 @@ func TestConsumeLogs(t *testing.T) {
 		assert.Nil(t, err)
 		assert.NotNil(t, exp)
 		t.Run(name, func(t *testing.T) {
-			expCfg.OutputDestination = testCase.outputDest
 			err = exp.ConsumeLogs(ctx, testCase.input)
-			if testCase.wantErr == nil {
-				require.NoError(t, err)
-			} else {
-				require.Error(t, err)
-				require.Equal(t, testCase.wantErr, err)
-			}
+			require.Error(t, err)
+			require.Equal(t, testCase.wantErr, err)
 			require.NoError(t, exp.Shutdown(ctx))
 		})
 	}
