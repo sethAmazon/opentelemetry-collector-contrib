@@ -19,8 +19,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
-	"sync"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/google/uuid"
@@ -33,6 +31,8 @@ import (
 	"go.opentelemetry.io/collector/pdata/plog"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.uber.org/zap"
+	"strings"
+	"sync"
 
 	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/aws/awsutil"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/aws/cwlogs"
@@ -196,18 +196,9 @@ func (emf *emfExporter) pushMetricsData(_ context.Context, md pmetric.Metrics) e
 		}
 	}
 
-	if strings.EqualFold(outputDestination, outputDestinationCloudWatch) {
-		for _, emfPusher := range emf.listPushers() {
-			returnError := emfPusher.ForceFlush()
-			if returnError != nil {
-				// TODO now we only have one logPusher, so it's ok to return after first error occurred
-				err := wrapErrorIfBadRequest(returnError)
-				if err != nil {
-					emf.logger.Error("Error force flushing logs. Skipping to next logPusher.", zap.Error(err))
-				}
-				return err
-			}
-		}
+	err := emf.flushToCWLogs(outputDestination)
+	if err != nil {
+		return err
 	}
 
 	emf.logger.Info("Finish processing resource metrics", zap.Any("labels", labels))
@@ -311,6 +302,10 @@ func (emf *emfExporter) pushLogsData(_ context.Context, ld plog.Logs) error {
 		}
 	}
 
+	return emf.flushToCWLogs(outputDestination)
+}
+
+func (emf *emfExporter) flushToCWLogs(outputDestination string) error {
 	if strings.EqualFold(outputDestination, outputDestinationCloudWatch) {
 		for _, emfPusher := range emf.listPushers() {
 			returnError := emfPusher.ForceFlush()
@@ -324,7 +319,6 @@ func (emf *emfExporter) pushLogsData(_ context.Context, ld plog.Logs) error {
 			}
 		}
 	}
-
 	return nil
 }
 
