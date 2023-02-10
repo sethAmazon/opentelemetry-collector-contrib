@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/google/uuid"

@@ -19,6 +19,7 @@ import (
 	"errors"
 	"os"
 	"testing"
+
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	commonpb "github.com/census-instrumentation/opencensus-proto/gen-go/agent/common/v1"
 	agentmetricspb "github.com/census-instrumentation/opencensus-proto/gen-go/agent/metrics/v1"
