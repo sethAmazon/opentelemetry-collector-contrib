@@ -13,5 +13,4 @@ services:
       - "8888:8888"   # Prometheus metrics exposed by the collector
       - "13133:13133" # health_check extension
       - "55679:55679" # zpages extension
-      - "54525:54525" # tcplog
-      - "25888:25888" # udplog
+      - "25888:25888" # tcp udp log
