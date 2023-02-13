@@ -1,11 +1,12 @@
 receivers:
   tcplog:
-    listen_address: "//:25888"
+    listen_address: "0.0.0.0:25888"
   udplog:
-    listen_address: "//:25888"
+    listen_address: "0.0.0.0:25888"
 
 exporters:
   awsemf:
+    region: us-west-2
 
   logging:
 
