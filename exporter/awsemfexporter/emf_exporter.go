@@ -65,8 +65,9 @@ type EmfWrapper struct {
 }
 
 type EmfFormatLog struct {
-	LogGroupName string `json:"LogGroupName"`
-	Timestamp    int64  `json:"Timestamp"`
+	LogGroupName  string `json:"LogGroupName"`
+	LogStreamName string `json:"LogStreamName,omitempty"`
+	Timestamp     int64  `json:"Timestamp"`
 }
 
 // newEmfPusher func creates an EMF Exporter instance with data push callback func
@@ -290,6 +291,9 @@ func (emf *emfExporter) pushLogsData(_ context.Context, ld plog.Logs) error {
 					fmt.Println(logEvent.InputLogEvent.Message)
 				} else if strings.EqualFold(outputDestination, outputDestinationCloudWatch) {
 					logGroup := wrapper.Wrapper.LogGroupName
+					if wrapper.Wrapper.LogStreamName != "" {
+						logStream = wrapper.Wrapper.LogStreamName
+					}
 
 					emfPusher := emf.getPusher(logGroup, logStream)
 					if emfPusher != nil {
