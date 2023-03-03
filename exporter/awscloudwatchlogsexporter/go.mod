@@ -1,4 +1,4 @@
-module github.com/open-telemetry/opentelemetry-collector-contrib/exporter/awscloudwatchlogsexporter
+module github.com/sethAmazon/opentelemetry-collector-contrib/exporter/awscloudwatchlogsexporter
 
 go 1.18
 
