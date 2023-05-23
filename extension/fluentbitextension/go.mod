@@ -6,7 +6,7 @@ go 1.18
 require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/shirou/gopsutil/v3 v3.23.1
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.8.3
 	go.opentelemetry.io/collector v0.71.0
 	go.opentelemetry.io/collector/component v0.71.0
 	go.opentelemetry.io/collector/confmap v0.71.0
