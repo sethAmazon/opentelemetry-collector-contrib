@@ -8,7 +8,7 @@ require (
 	github.com/open-telemetry/opentelemetry-collector-contrib/extension/observer v0.71.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/internal/common v0.71.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/internal/docker v0.71.0
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.8.4
 	github.com/testcontainers/testcontainers-go v0.17.0
 	go.opentelemetry.io/collector v0.71.0
 	go.opentelemetry.io/collector/component v0.71.0
