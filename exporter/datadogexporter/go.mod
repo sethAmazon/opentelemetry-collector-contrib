@@ -33,8 +33,8 @@ require (
 	go.opentelemetry.io/collector/processor/batchprocessor v0.71.0
 	go.opentelemetry.io/collector/receiver/otlpreceiver v0.71.0
 	go.opentelemetry.io/collector/semconv v0.71.0
-	go.uber.org/multierr v1.9.0
-	go.uber.org/zap v1.24.0
+	go.uber.org/multierr v1.10.0
+	go.uber.org/zap v1.27.0
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/zorkian/go-datadog-api.v2 v2.30.0
@@ -59,7 +59,6 @@ require (
 	github.com/Showmax/go-fqdn v1.0.0 // indirect
 	github.com/antonmedv/expr v1.12.0 // indirect
 	github.com/armon/go-metrics v0.3.10 // indirect
-	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bmatcuk/doublestar/v4 v4.6.0 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
