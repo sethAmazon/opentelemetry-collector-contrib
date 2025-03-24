@@ -10,8 +10,8 @@ require (
 	go.opentelemetry.io/collector/consumer v0.71.0
 	go.opentelemetry.io/collector/pdata v1.0.0-rc5
 	go.opentelemetry.io/collector/semconv v0.71.0
-	go.uber.org/multierr v1.9.0
-	go.uber.org/zap v1.24.0
+	go.uber.org/multierr v1.10.0
+	go.uber.org/zap v1.27.0
 	golang.org/x/crypto v0.0.0-20220507011949-2cf3adece122
 )
 
