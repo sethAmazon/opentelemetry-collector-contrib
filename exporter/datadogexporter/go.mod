@@ -1,9 +1,10 @@
 module github.com/open-telemetry/opentelemetry-collector-contrib/exporter/datadogexporter
 
 go 1.18
+toolchain go1.24.1
 
 require (
-	github.com/DataDog/agent-payload/v5 v5.0.70
+	github.com/DataDog/agent-payload/v5 v5.0.145
 	github.com/DataDog/datadog-agent/pkg/otlp/model v0.43.0-rc.3.0.20230206114529-17c7dfde736c
 	github.com/DataDog/datadog-agent/pkg/trace v0.43.0-rc.3.0.20230206114529-17c7dfde736c
 	github.com/DataDog/datadog-api-client-go/v2 v2.7.0
@@ -35,7 +36,7 @@ require (
 	go.opentelemetry.io/collector/semconv v0.71.0
 	go.uber.org/multierr v1.9.0
 	go.uber.org/zap v1.24.0
-	google.golang.org/protobuf v1.28.1
+	google.golang.org/protobuf v1.30.0
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/zorkian/go-datadog-api.v2 v2.30.0
 	k8s.io/apimachinery v0.26.1
