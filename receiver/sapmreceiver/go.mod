@@ -1,6 +1,6 @@
 module github.com/open-telemetry/opentelemetry-collector-contrib/receiver/sapmreceiver
 
-go 1.18
+go 1.23.0
 
 require (
 	github.com/gorilla/mux v1.8.0
@@ -9,13 +9,13 @@ require (
 	github.com/open-telemetry/opentelemetry-collector-contrib/internal/splunk v0.71.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/translator/jaeger v0.71.0
 	github.com/signalfx/sapm-proto v0.12.0
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.10.0
 	go.opentelemetry.io/collector v0.71.0
 	go.opentelemetry.io/collector/component v0.71.0
 	go.opentelemetry.io/collector/confmap v0.71.0
 	go.opentelemetry.io/collector/consumer v0.71.0
 	go.opentelemetry.io/collector/pdata v1.0.0-rc5
-	go.opentelemetry.io/collector/semconv v0.71.0
+	go.opentelemetry.io/collector/semconv v0.126.0
 )
 
 require (
